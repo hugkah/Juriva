@@ -1,0 +1,92 @@
+:root {
+  /* Palette JURIVA Premium - Professionnel Juridique */
+  --accent: #1e40af;         /* Bleu royal institutionnel */
+  --accent-dark: #1e3a8a;
+  --accent-light: #3b82f6;
+  --accent-soft: rgba(30, 64, 175, 0.08);
+  
+  /* Mode Clair */
+  --bg-main: #f8fafc;        /* Fond de page ultra-clair */
+  --bg-surface: #ffffff;     /* Cartes, Bulles bot */
+  --bg-sidebar: #0f172a;     /* Sidebar sombre institutionnelle */
+  --bg-sidebar-hover: rgba(255, 255, 255, 0.05);
+  --bg-sidebar-active: rgba(255, 255, 255, 0.1);
+  
+  --text-main: #0f172a;      /* Texte principal */
+  --text-muted: #64748b;     /* Texte secondaire */
+  --text-inverse: #ffffff;   /* Texte sur fond sombre */
+  
+  --border: #e2e8f0;
+  --chat-user: #1e40af;
+  --chat-bot: #ffffff;
+  
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.04);
+  --radius: 12px;
+}
+
+[data-theme='dark'] {
+  --bg-main: #020617;        /* Fond noir ardoise */
+  --bg-surface: #0f172a;     /* Composants bleu nuit */
+  --bg-sidebar: #020617;
+  --bg-sidebar-hover: #0f172a;
+  --bg-sidebar-active: #1e293b;
+  
+  --text-main: #f1f5f9;      /* Texte blanc cassé */
+  --text-muted: #94a3b8;
+  --text-inverse: #ffffff;
+  
+  --border: #1e293b;
+  --chat-user: #2563eb;
+  --chat-bot: #0f172a;
+  --accent-soft: rgba(37, 99, 235, 0.1);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.2s ease, box-shadow 0.3s ease;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  line-height: 1.5;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+button:active {
+  transform: scale(0.96);
+}
+
+textarea, input {
+  font-family: inherit;
+}
+
+.input-container-focus:focus-within {
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 4px rgba(30, 64, 175, 0.1) !important;
+}
+
+/* Animations globales */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+.text-accent {
+  color: var(--accent);
+}
