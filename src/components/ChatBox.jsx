@@ -54,7 +54,7 @@ const TypingMessage = ({ text = "", onComplete, onUpdate }) => {
   );
 };
 
-const ChatBox = ({ chatId, messages = [], onUpdateMessages, user }) => {
+const ChatBox = ({ chatId, category, messages = [], onUpdateMessages, user }) => {
   const [input, setInput] = useState('');
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -120,6 +120,7 @@ const ChatBox = ({ chatId, messages = [], onUpdateMessages, user }) => {
     const formData = new FormData();
     formData.append('question', currentInput || "Analyse ce document");
     formData.append('conversation_id', chatId);
+    formData.append('category', category || 'Droit Général');
     if (currentFile) formData.append('file', currentFile);
 
     setLoading(true);

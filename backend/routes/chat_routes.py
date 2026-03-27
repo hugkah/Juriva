@@ -68,7 +68,7 @@ def encode_image(image_path):
     with open(image_path, "rb") as image_file:
         return base64.b64encode(image_file.read()).decode('utf-8')
 
-def call_groq_ai(question: str, history: List[models.Message], user: models.User, file_path: Optional[str] = None) -> str:
+def call_groq_ai(question: str, history: List[models.Message], user: models.User, file_path: Optional[str] = None, category: str = "Droit Général") -> str:
     try:
         # ... (rest of the detection logic)
         extracted_text = ""
@@ -90,14 +90,14 @@ def call_groq_ai(question: str, history: List[models.Message], user: models.User
         custom_instr = user.custom_instructions if user and user.custom_instructions else ""
 
         system_content = (
-            f"Tu es JURIVA, assistante juridique experte spécialisée en droit de la juridiction suivante : {user_country}. "
-            "Explique les lois simplement en utilisant un formatage Markdown riche : "
-            "- Utilise du **gras** pour les termes importants. "
-            "- Utilise des listes à puces ou numérotées pour les procédures ou conditions. "
-            "- Utilise des titres (###) pour structurer les longues réponses. "
-            "- Si des articles de loi sont cités, mets-les en évidence. "
-            f"Par défaut, tes réponses doivent se baser sur les lois en vigueur en {user_country}, "
-            "sauf si l'utilisateur mentionne explicitement un autre pays dans sa question. "
+            f"Tu es JURIVA, une assistante juridique experte de haut niveau. "
+            f"Tu agis ici en tant qu'experte spécialisée en **{category}** pour la juridiction : **{user_country}**. "
+            "\n\nDIRECTIVES DE RÉPONSE : "
+            "- Explique les lois simplement mais avec précision technique. "
+            "- Utilise un formatage Markdown riche : **gras** pour les concepts clés, titres (###) pour structurer. "
+            "- Cite les articles de loi pertinents si possible. "
+            f"- Base tes réponses exclusivement sur le droit en vigueur en {user_country}, sauf demande contraire. "
+            f"- Ton ton doit être celui d'un(e) expert(e) en {category}, à la fois pédagogique et rigoureux(se)."
         )
 
         if custom_instr:
@@ -151,6 +151,7 @@ def call_groq_ai(question: str, history: List[models.Message], user: models.User
 async def ask_question(
     question: str = Form(...),
     conversation_id: int = Form(...),
+    category: Optional[str] = Form("Droit Général"),
     file: Optional[UploadFile] = File(None),
     db: Session = Depends(get_db),
     current_user: Optional[models.User] = Depends(auth.get_current_user_optional)
@@ -158,7 +159,7 @@ async def ask_question(
     # Pour les invités (sans compte), on ne sauvegarde rien en base
     if not current_user:
         # On simule un historique vide pour les invités
-        ai_content = call_groq_ai(question, [], None, None)
+        ai_content = call_groq_ai(question, [], None, None, category)
         return schemas.AskResponse(answer=ai_content, conversation_id=conversation_id)
 
     conv = db.query(models.Conversation).filter(
@@ -197,8 +198,8 @@ async def ask_question(
     )
     db.add(user_msg)
     
-    # Appel IA
-    ai_content = call_groq_ai(question, history_for_ia, current_user, file_path)
+    # Appel IA avec la catégorie
+    ai_content = call_groq_ai(question, history_for_ia, current_user, file_path, category)
     
     # Sauvegarde réponse IA
     ai_msg = models.Message(

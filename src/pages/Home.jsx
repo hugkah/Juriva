@@ -445,7 +445,14 @@ const Home = ({ user = {}, onLogout, onOpenAuth }) => {
 
         {activeChat ? (
           <div style={{ flex: 1, maxWidth: '900px', margin: '0 auto', width: '100%', display: 'flex', flexDirection: 'column', padding: '0 20px', minHeight: 0 }}>
-            <ChatBox key={activeChat.id} chatId={activeChat.id} messages={activeChat.messages} user={user} onUpdateMessages={memoizedUpdate} />
+            <ChatBox 
+              key={activeChat.id} 
+              chatId={activeChat.id} 
+              category={activeChat.category} 
+              messages={activeChat.messages} 
+              user={user} 
+              onUpdateMessages={memoizedUpdate} 
+            />
           </div>
         ) : (
           <motion.div 
