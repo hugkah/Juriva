@@ -7,8 +7,19 @@ function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showAuth, setShowAuth] = useState(false);
+  const [initialAuthView, setInitialAuthView] = useState('login');
 
   useEffect(() => {
+    // Vérifier si on arrive via un lien de réinitialisation
+    const params = new URLSearchParams(window.location.search);
+    const resetToken = params.get('reset_token');
+    const email = params.get('email');
+
+    if (resetToken && email) {
+      setInitialAuthView('reset');
+      setShowAuth(true);
+    }
+
     const savedUser = localStorage.getItem('juriva_user');
     if (savedUser) {
       setUser(JSON.parse(savedUser));
@@ -23,6 +34,8 @@ function App() {
     setUser(userData);
     localStorage.setItem('juriva_user', JSON.stringify(userData));
     setShowAuth(false);
+    // Nettoyer l'URL
+    window.history.replaceState({}, document.title, "/");
   };
 
   const handleLogout = () => {
@@ -36,7 +49,14 @@ function App() {
   return (
     <div className="App">
       {showAuth ? (
-        <Auth onLogin={handleLogin} onCancel={() => setShowAuth(false)} />
+        <Auth 
+          onLogin={handleLogin} 
+          onCancel={() => {
+            setShowAuth(false);
+            window.history.replaceState({}, document.title, "/");
+          }} 
+          initialView={initialAuthView}
+        />
       ) : (
         <Home user={user} onLogout={handleLogout} onOpenAuth={() => setShowAuth(true)} />
       )}

@@ -45,6 +45,34 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
+@router.post("/forgot-password")
+def forgot_password(request: schemas.ForgotPasswordRequest, db: Session = Depends(get_db)):
+    user = db.query(models.User).filter(models.User.email == request.email).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="Cette adresse e-mail n'est pas enregistrée.")
+    
+    # Simulation d'un token et génération du lien pour le terminal
+    simulated_token = "reset_" + auth.get_password_hash(user.email)[:10]
+    reset_link = f"http://localhost:5173/?reset_token={simulated_token}&email={user.email}"
+    
+    print("\n" + "="*50)
+    print("📧 SIMULATION D'ENVOI D'EMAIL JURIVA")
+    print(f"Pour réinitialiser le mot de passe de : {user.email}")
+    print(f"CLIQUEZ SUR CE LIEN : {reset_link}")
+    print("="*50 + "\n")
+    
+    return {"message": "Utilisateur vérifié. Un lien a été envoyé."}
+
+@router.post("/reset-password")
+def reset_password(reset_data: schemas.PasswordReset, db: Session = Depends(get_db)):
+    user = db.query(models.User).filter(models.User.email == reset_data.email).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="Utilisateur non trouvé.")
+    
+    user.password_hash = auth.get_password_hash(reset_data.new_password)
+    db.commit()
+    return {"message": "Mot de passe réinitialisé avec succès."}
+
 @router.put("/update", response_model=schemas.UserOut)
 def update_profile(user_update: schemas.UserUpdate, current_user: models.User = Depends(auth.get_current_user), db: Session = Depends(get_db)):
     if user_update.display_name is not None:
@@ -61,8 +89,15 @@ def update_profile(user_update: schemas.UserUpdate, current_user: models.User = 
     return current_user
 
 @router.delete("/delete")
-def delete_account(current_user: models.User = Depends(auth.get_current_user), db: Session = Depends(get_db)):
-    # Supprimer l'utilisateur (la cascade gère les conversations si configuré, mais ici on va s'assurer)
+def delete_account(user_delete: schemas.UserDelete, current_user: models.User = Depends(auth.get_current_user), db: Session = Depends(get_db)):
+    # Vérifier le mot de passe
+    if not auth.verify_password(user_delete.password, current_user.password_hash):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Mot de passe incorrect",
+        )
+    
+    # Supprimer l'utilisateur
     db.delete(current_user)
     db.commit()
     return {"message": "Compte supprimé avec succès"}

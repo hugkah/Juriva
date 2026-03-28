@@ -35,6 +35,7 @@ const Home = ({ user = {}, onLogout, onOpenAuth }) => {
   
   const [notification, setNotification] = useState(null);
   const [confirmModal, setConfirmModal] = useState(null);
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   const categories = [
     { name: 'Droit Général', icon: <Globe size={18} /> },
@@ -57,11 +58,13 @@ const Home = ({ user = {}, onLogout, onOpenAuth }) => {
   };
 
   const [editCountry, setEditCountry] = useState(user?.country || 'France');
+  const [editLanguage, setEditLanguage] = useState(user?.language || 'Français');
   const [editInstructions, setEditInstructions] = useState(user?.custom_instructions || '');
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     setEditCountry(user?.country || 'France');
+    setEditLanguage(user?.language || 'Français');
     setEditInstructions(user?.custom_instructions || '');
   }, [user]);
 
@@ -78,7 +81,11 @@ const Home = ({ user = {}, onLogout, onOpenAuth }) => {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${user?.token}`
         },
-        body: JSON.stringify({ country: editCountry, custom_instructions: editInstructions })
+        body: JSON.stringify({ 
+          country: editCountry, 
+          language: editLanguage,
+          custom_instructions: editInstructions 
+        })
       });
       if (response.ok) {
         const updatedUser = await response.json();
@@ -93,15 +100,28 @@ const Home = ({ user = {}, onLogout, onOpenAuth }) => {
   const handleDeleteAccount = () => {
     setConfirmModal({
       title: "Supprimer le compte",
-      message: "Cette action est irréversible. Toutes vos données seront perdues.",
-      onConfirm: async () => {
+      message: "Cette action est irréversible. Toutes vos données seront perdues définitivement.",
+      onConfirm: async (password) => {
         try {
-          await fetch(`${API_URL}/auth/delete`, {
+          const response = await fetch(`${API_URL}/auth/delete`, {
             method: 'DELETE',
-            headers: { 'Authorization': `Bearer ${user?.token}` }
+            headers: { 
+              'Authorization': `Bearer ${user?.token}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ password })
           });
-          onLogout();
-        } catch (err) { showToast("Erreur", "error"); }
+          
+          if (response.ok) {
+            localStorage.removeItem('juriva_user');
+            localStorage.removeItem('juriva_token');
+            localStorage.removeItem(`juriva_chats_${user?.email || 'guest'}`);
+            window.location.href = '/'; 
+          } else {
+            const data = await response.json();
+            showToast(data.detail || "Erreur lors de la suppression", "error");
+          }
+        } catch (err) { showToast("Erreur réseau", "error"); }
       }
     });
   };
@@ -258,7 +278,17 @@ const Home = ({ user = {}, onLogout, onOpenAuth }) => {
     }
   }, [activeChatId, updateChatMessages]);
 
-  const countryFlags = { "Bénin": "🇧🇯", "Burkina Faso": "🇧🇫", "Cameroun": "🇨🇲", "Côte d'Ivoire": "🇨🇮", "France": "🇫🇷", "Gabon": "🇬🇦", "Guinée": "🇬🇳", "Mali": "🇲🇱", "Niger": "🇳🇪", "République du Congo": "🇨🇬", "Sénégal": "🇸🇳", "Tchad": "🇹🇩", "Togo": "🇹🇬" };
+  const countryFlags = { 
+    // Francophones
+    "Bénin": "🇧🇯", "Burkina Faso": "🇧🇫", "Cameroun": "🇨🇲", "Côte d'Ivoire": "🇨🇮", 
+    "France": "🇫🇷", "Gabon": "🇬🇦", "Guinée": "🇬🇳", "Mali": "🇲🇱", 
+    "Niger": "🇳🇪", "République du Congo": "🇨🇬", "Sénégal": "🇸🇳", 
+    "Tchad": "🇹🇩", "Togo": "🇹🇬", "Belgique": "🇧🇪", "Suisse": "🇨🇭", "Canada (Québec)": "🇨🇦",
+    // Anglophones
+    "Nigeria": "🇳🇬", "Ghana": "🇬🇭", "Kenya": "🇰🇪", "South Africa": "🇿🇦", 
+    "USA": "🇺🇸", "UK": "🇬🇧", "Canada (English)": "🇨🇦", "Australia": "🇦🇺",
+    "India": "🇮🇳", "Liberia": "🇱🇷", "Sierra Leone": "🇸🇱"
+  };
 
   const sidebarVariants = {
     open: { x: 0, opacity: 1, display: 'flex' },
@@ -288,15 +318,32 @@ const Home = ({ user = {}, onLogout, onOpenAuth }) => {
 
       <AnimatePresence>
         {confirmModal && (
-          <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1500 }}>
+          <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 3000 }}>
             <motion.div 
               initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
               style={{ backgroundColor: 'var(--bg-surface)', padding: '32px', borderRadius: '24px', width: '380px', boxShadow: 'var(--shadow-md)', border: '1px solid var(--border)' }}>
               <h3 style={{ marginTop: 0, fontSize: '1.4rem', color: 'var(--text-main)', marginBottom: '12px' }}>{confirmModal.title}</h3>
               <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', lineHeight: '1.6' }}>{confirmModal.message}</p>
+              
+              {confirmModal.title === "Supprimer le compte" && (
+                <div style={{ marginTop: '20px' }}>
+                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: '800', color: 'var(--text-muted)', marginBottom: '8px' }}>MOT DE PASSE DE CONFIRMATION</label>
+                  <input 
+                    type="password" 
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Entrez votre mot de passe"
+                    style={{ 
+                      width: '100%', padding: '14px', borderRadius: '12px', border: '1px solid var(--border)', 
+                      background: 'var(--bg-main)', color: 'var(--text-main)', outline: 'none' 
+                    }}
+                  />
+                </div>
+              )}
+
               <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
-                <button onClick={() => setConfirmModal(null)} style={{ flex: 1, padding: '12px', backgroundColor: 'var(--bg-main)', color: 'var(--text-main)', border: '1px solid var(--border)', borderRadius: '12px', fontWeight: 'bold' }}>Annuler</button>
-                <button onClick={confirmModal.onConfirm} style={{ flex: 1, padding: '12px', backgroundColor: '#ef4444', color: 'white', border: 'none', borderRadius: '12px', fontWeight: 'bold' }}>Confirmer</button>
+                <button onClick={() => { setConfirmModal(null); setConfirmPassword(''); }} style={{ flex: 1, padding: '12px', backgroundColor: 'var(--bg-main)', color: 'var(--text-main)', border: '1px solid var(--border)', borderRadius: '12px', fontWeight: 'bold' }}>Annuler</button>
+                <button onClick={() => confirmModal.onConfirm(confirmPassword)} disabled={confirmModal.title === "Supprimer le compte" && !confirmPassword} style={{ flex: 1, padding: '12px', backgroundColor: '#ef4444', color: 'white', border: 'none', borderRadius: '12px', fontWeight: 'bold', opacity: (confirmModal.title === "Supprimer le compte" && !confirmPassword) ? 0.5 : 1 }}>Confirmer</button>
               </div>
             </motion.div>
           </div>
@@ -417,6 +464,16 @@ const Home = ({ user = {}, onLogout, onOpenAuth }) => {
                   </div>
                 </div>
                 <div>
+                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '700', color: 'var(--text-muted)', marginBottom: '8px' }}>Langue de réponse</label>
+                  <div style={{ position: 'relative' }}>
+                    <select value={editLanguage} onChange={(e) => setEditLanguage(e.target.value)} style={{ width: '100%', padding: '12px', paddingLeft: '40px', borderRadius: '12px', border: '1px solid var(--border)', background: 'var(--bg-surface)', color: 'var(--text-main)', fontSize: '0.95rem', appearance: 'none' }}>
+                      <option value="Français">🇫🇷 Français</option>
+                      <option value="English">🇬🇧 English</option>
+                    </select>
+                    <Globe size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+                  </div>
+                </div>
+                <div>
                   <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '700', color: 'var(--text-muted)', marginBottom: '8px' }}>Instructions personnalisées</label>
                   <div style={{ position: 'relative' }}>
                     <textarea value={editInstructions} onChange={(e) => setEditInstructions(e.target.value)} placeholder="Ex: Sois très bref et cite des articles de loi..." style={{ width: '100%', height: '100px', padding: '12px', paddingLeft: '40px', borderRadius: '12px', border: '1px solid var(--border)', background: 'var(--bg-surface)', color: 'var(--text-main)', resize: 'none', fontSize: '0.9rem', outline: 'none' }} />
@@ -448,7 +505,6 @@ const Home = ({ user = {}, onLogout, onOpenAuth }) => {
             <ChatBox 
               key={activeChat.id} 
               chatId={activeChat.id} 
-              category={activeChat.category} 
               messages={activeChat.messages} 
               user={user} 
               onUpdateMessages={memoizedUpdate} 
@@ -458,60 +514,32 @@ const Home = ({ user = {}, onLogout, onOpenAuth }) => {
           <motion.div 
             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
             style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', textAlign: 'center', overflowY: 'auto' }}>
-            <div style={{ maxWidth: '650px', width: '100%' }}>
+            <div style={{ maxWidth: '600px', width: '100%' }}>
               <motion.h2 
                 initial={{ scale: 0.9 }} animate={{ scale: 1 }}
-                style={{ fontSize: window.innerWidth <= 768 ? '2.5rem' : '4rem', fontWeight: '900', marginBottom: '8px', letterSpacing: '-2px', color: 'var(--accent)', textShadow: '0 10px 30px rgba(30, 64, 175, 0.1)' }}>JURIVA</motion.h2>
-              <p style={{ color: 'var(--text-muted)', marginBottom: '32px', fontSize: '1.1rem', lineHeight: '1.6', fontWeight: '500' }}>Votre assistant juridique personnel intelligent.<br/>Choisissez un domaine pour commencer l'expertise.</p>
+                style={{ fontSize: window.innerWidth <= 768 ? '3rem' : '4.5rem', fontWeight: '900', marginBottom: '16px', letterSpacing: '-3px', color: 'var(--accent)', textShadow: '0 10px 30px rgba(30, 64, 175, 0.1)' }}>JURIVA</motion.h2>
+              <p style={{ color: 'var(--text-muted)', marginBottom: '40px', fontSize: '1.2rem', lineHeight: '1.6', fontWeight: '500' }}>Votre assistant juridique personnel intelligent.<br/>Expert en droit des affaires, du travail et civil.</p>
               
-              <div style={{ background: 'var(--bg-surface)', padding: '30px', borderRadius: '32px', border: '1px solid var(--border)', boxShadow: 'var(--shadow-lg)', textAlign: 'left' }}>
-                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: '800', color: 'var(--text-muted)', marginBottom: '16px', letterSpacing: '1px' }}>DOMAINE D'EXPERTISE</label>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '12px', marginBottom: '24px' }}>
-                  {categories.map(cat => (
-                    <motion.button 
-                      whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
-                      key={cat.name}
-                      onClick={() => setSelectedCategory(cat.name)}
-                      style={{ 
-                        padding: '16px 12px', borderRadius: '16px', border: '2px solid', 
-                        borderColor: selectedCategory === cat.name ? 'var(--accent)' : 'transparent',
-                        background: selectedCategory === cat.name ? 'var(--accent-soft)' : 'var(--bg-main)',
-                        color: selectedCategory === cat.name ? 'var(--accent)' : 'var(--text-main)',
-                        fontWeight: '700', fontSize: '0.85rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px',
-                        transition: 'all 0.2s', cursor: 'pointer'
-                      }}
-                    >
-                      <div style={{ opacity: selectedCategory === cat.name ? 1 : 0.6 }}>{cat.icon}</div>
-                      {cat.name}
-                    </motion.button>
-                  ))}
-                </div>
-
-                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: '800', color: 'var(--text-muted)', marginBottom: '8px', letterSpacing: '1px' }}>TITRE DE LA DISCUSSION (OPTIONNEL)</label>
-                <input 
-                  type="text" 
-                  value={newChatTitle}
-                  onChange={(e) => setNewChatTitle(e.target.value)}
-                  placeholder="Ex: Contrat de travail, Litige bail..."
-                  style={{ 
-                    width: '100%', padding: '16px', borderRadius: '16px', border: '1px solid var(--border)', 
-                    background: 'var(--bg-main)', color: 'var(--text-main)', outline: 'none', fontSize: '1rem', marginBottom: '24px'
-                  }}
-                />
-
-                <motion.button 
-                  whileHover={{ scale: 1.02, boxShadow: '0 10px 20px rgba(30, 64, 175, 0.2)' }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={createNewChat}
-                  style={{ 
-                    width: '100%', padding: '18px', backgroundColor: 'var(--accent)', color: 'white', border: 'none', 
-                    borderRadius: '18px', cursor: 'pointer', fontWeight: '800', fontSize: '1.1rem',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px'
-                  }}
-                >
-                  <ShieldCheck size={22} /> Démarrer l'expertise
-                </motion.button>
+              <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '10px', marginBottom: '40px', opacity: 0.7 }}>
+                {categories.map(cat => (
+                  <span key={cat.name} style={{ padding: '8px 16px', borderRadius: '20px', background: 'var(--bg-sidebar-hover)', color: 'var(--text-main)', fontSize: '0.85rem', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '6px', border: '1px solid var(--border)' }}>
+                    {cat.icon} {cat.name}
+                  </span>
+                ))}
               </div>
+
+              <motion.button 
+                whileHover={{ scale: 1.05, boxShadow: '0 15px 30px rgba(30, 64, 175, 0.2)' }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => createNewChat()}
+                style={{ 
+                  padding: '20px 40px', backgroundColor: 'var(--accent)', color: 'white', border: 'none', 
+                  borderRadius: '20px', cursor: 'pointer', fontWeight: '800', fontSize: '1.2rem',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', margin: '0 auto'
+                }}
+              >
+                <Plus size={24} /> Nouvelle discussion
+              </motion.button>
             </div>
           </motion.div>
         )}

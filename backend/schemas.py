@@ -25,6 +25,16 @@ class UserUpdate(BaseModel):
     custom_instructions: Optional[str] = None
     password: Optional[str] = None
 
+class UserDelete(BaseModel):
+    password: str
+
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+class PasswordReset(BaseModel):
+    email: EmailStr
+    new_password: str
+
 class Token(BaseModel):
     access_token: str
     token_type: str
