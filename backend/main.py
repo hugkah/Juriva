@@ -14,12 +14,7 @@ app = FastAPI(
 )
 
 # CORS Configuration
-origins = [
-    "http://localhost:3000",
-    "http://localhost:5173", # Vite default
-    "http://127.0.0.1:5173",
-    "https://unbilled-sublanate-jessika.ngrok-free.dev",
-]
+origins = ["*"]  # Autorise toutes les origines pour le déploiement sur Vercel
 
 app.add_middleware(
     CORSMiddleware,
