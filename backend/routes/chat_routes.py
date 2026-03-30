@@ -349,8 +349,11 @@ from reportlab.lib.colors import HexColor
 async def export_conversation_pdf(
     conversation_id: int,
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(auth.get_current_user)
+    current_user: models.User = Depends(auth.get_current_user_optional)
 ):
+    if not current_user:
+        raise HTTPException(status_code=401, detail="Non authentifié")
+        
     conv = db.query(models.Conversation).filter(
         models.Conversation.id == conversation_id,
         models.Conversation.user_id == current_user.id

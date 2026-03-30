@@ -221,13 +221,15 @@ const ChatBox = ({ chatId, category, messages = [], onUpdateMessages, user }) =>
       
       {/* Header Chat - Plus compact sur mobile */}
       <div className="chat-header" style={{ padding: '8px 0', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '8px' }}>
-        <motion.button 
-          whileHover={{ scale: 1.02, backgroundColor: 'var(--bg-main)' }}
-          whileTap={{ scale: 0.98 }}
-          onClick={handleExportPDF} 
-          style={{ padding: '6px 12px', backgroundColor: 'var(--bg-surface)', color: 'var(--text-main)', border: '1px solid var(--border)', borderRadius: '10px', cursor: 'pointer', fontSize: '0.75rem', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '6px', boxShadow: 'var(--shadow-sm)' }}>
-          <Download size={14} className="text-accent" /> <span className="hide-mobile">Exporter</span> PDF
-        </motion.button>
+        {!user?.isGuest && (
+          <motion.button 
+            whileHover={{ scale: 1.02, backgroundColor: 'var(--bg-main)' }}
+            whileTap={{ scale: 0.98 }}
+            onClick={handleExportPDF} 
+            style={{ padding: '6px 12px', backgroundColor: 'var(--bg-surface)', color: 'var(--text-main)', border: '1px solid var(--border)', borderRadius: '10px', cursor: 'pointer', fontSize: '0.75rem', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '6px', boxShadow: 'var(--shadow-sm)' }}>
+            <Download size={14} className="text-accent" /> <span className="hide-mobile">Exporter</span> PDF
+          </motion.button>
+        )}
       </div>
 
       {/* Zone des messages - Padding réduit sur mobile */}
