@@ -360,11 +360,27 @@ const Home = ({ user = {}, onLogout, onOpenAuth }) => {
         }}>
         <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: '800', letterSpacing: '-0.5px', color: 'var(--accent)' }}>JURIVA</h1>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <svg width="32" height="32" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="60" cy="60" r="55" fill="rgba(38,107,101,0.644)"/>
+                <path d="M75 35 V70 C75 85 65 95 50 95 C40 95 32 90 28 82" stroke="white" stroke-width="6" stroke-linecap="round"/>
+                <line x1="45" y1="50" x2="100" y2="50" stroke="white" stroke-width="4" stroke-linecap="round"/>
+                <line x1="55" y1="50" x2="50" y2="65" stroke="#ffffff" stroke-width="2"/>
+                <line x1="93.5" y1="50" x2="100" y2="65" stroke="white" stroke-width="2"/>
+                <circle cx="50" cy="68" r="6" stroke="white" stroke-width="2" fill="none"/>
+                <circle cx="100" cy="68" r="6" stroke="white" stroke-width="2" fill="none"/>
+              </svg>
+              <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: '800', letterSpacing: '-0.5px', color: 'var(--accent)' }}>JURIVA</h1>
+            </div>
             <span style={{ fontSize: '1.3rem' }}>{countryFlags[user?.country] || "🇫🇷"}</span>
           </div>
           <button onClick={() => { setActiveChatId(null); if (window.innerWidth <= 768) setIsSidebarOpen(false); }} style={{ width: '100%', padding: '14px', backgroundColor: 'var(--accent)', color: 'white', border: 'none', borderRadius: '14px', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.95rem', boxShadow: '0 4px 12px rgba(44, 62, 80, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-            <Plus size={18} /> Nouveau Chat
+            <svg width="20" height="20" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="60" cy="60" r="55" fill="white"/>
+              <path d="M75 35 V70 C75 85 65 95 50 95 C40 95 32 90 28 82" stroke="#1E3A8A" stroke-width="8" stroke-linecap="round"/>
+              <line x1="45" y1="50" x2="85" y2="50" stroke="#1E3A8A" stroke-width="6" stroke-linecap="round"/>
+            </svg>
+            Nouveau Chat
           </button>
         </div>
 
@@ -521,14 +537,14 @@ const Home = ({ user = {}, onLogout, onOpenAuth }) => {
                 transition={{ duration: 0.5 }}
                 style={{ marginBottom: '24px' }}
               >
-                <svg width="100" height="100" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ filter: 'drop-shadow(0 10px 15px rgba(30, 58, 138, 0.2))' }}>
-                  <circle cx="60" cy="60" r="55" fill="#1E3A8A"/>
+                <svg width="100" height="100" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ filter: 'drop-shadow(0 10px 15px rgba(38, 107, 101, 0.2))' }}>
+                  <circle cx="60" cy="60" r="55" fill="rgba(38, 107, 101, 0.644)"/>
                   <path d="M75 35 V70 C75 85 65 95 50 95 C40 95 32 90 28 82" stroke="white" stroke-width="6" stroke-linecap="round"/>
-                  <line x1="45" y1="50" x2="85" y2="50" stroke="white" stroke-width="4" stroke-linecap="round"/>
-                  <line x1="55" y1="50" x2="50" y2="65" stroke="white" stroke-width="2"/>
-                  <line x1="75" y1="50" x2="80" y2="65" stroke="white" stroke-width="2"/>
+                  <line x1="45" y1="50" x2="100" y2="50" stroke="white" stroke-width="4" stroke-linecap="round"/>
+                  <line x1="55" y1="50" x2="50" y2="65" stroke="#ffffff" stroke-width="2"/>
+                  <line x1="93.5" y1="50" x2="100" y2="65" stroke="white" stroke-width="2"/>
                   <circle cx="50" cy="68" r="6" stroke="white" stroke-width="2" fill="none"/>
-                  <circle cx="80" cy="68" r="6" stroke="white" stroke-width="2" fill="none"/>
+                  <circle cx="100" cy="68" r="6" stroke="white" stroke-width="2" fill="none"/>
                 </svg>
               </motion.div>
               <motion.h2 
