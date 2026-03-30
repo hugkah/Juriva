@@ -515,6 +515,22 @@ const Home = ({ user = {}, onLogout, onOpenAuth }) => {
             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
             style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', textAlign: 'center', overflowY: 'auto' }}>
             <div style={{ maxWidth: '600px', width: '100%' }}>
+              <motion.div 
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.5 }}
+                style={{ marginBottom: '24px' }}
+              >
+                <svg width="100" height="100" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ filter: 'drop-shadow(0 10px 15px rgba(30, 58, 138, 0.2))' }}>
+                  <circle cx="60" cy="60" r="55" fill="#1E3A8A"/>
+                  <path d="M75 35 V70 C75 85 65 95 50 95 C40 95 32 90 28 82" stroke="white" stroke-width="6" stroke-linecap="round"/>
+                  <line x1="45" y1="50" x2="85" y2="50" stroke="white" stroke-width="4" stroke-linecap="round"/>
+                  <line x1="55" y1="50" x2="50" y2="65" stroke="white" stroke-width="2"/>
+                  <line x1="75" y1="50" x2="80" y2="65" stroke="white" stroke-width="2"/>
+                  <circle cx="50" cy="68" r="6" stroke="white" stroke-width="2" fill="none"/>
+                  <circle cx="80" cy="68" r="6" stroke="white" stroke-width="2" fill="none"/>
+                </svg>
+              </motion.div>
               <motion.h2 
                 initial={{ scale: 0.9 }} animate={{ scale: 1 }}
                 style={{ fontSize: window.innerWidth <= 768 ? '3rem' : '4.5rem', fontWeight: '900', marginBottom: '16px', letterSpacing: '-3px', color: 'var(--accent)', textShadow: '0 10px 30px rgba(30, 64, 175, 0.1)' }}>JURIVA</motion.h2>
