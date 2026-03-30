@@ -10,3 +10,4 @@ reportlab
 passlib[bcrypt]
 python-jose[cryptography]
 pydantic[email]
+fastapi-mail

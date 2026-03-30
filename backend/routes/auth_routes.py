@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from datetime import timedelta
 from backend.database import get_db
 from backend import models, schemas, auth
+from backend.utils.email_utils import send_reset_password_email
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -46,22 +47,23 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
     return {"access_token": access_token, "token_type": "bearer"}
 
 @router.post("/forgot-password")
-def forgot_password(request: schemas.ForgotPasswordRequest, db: Session = Depends(get_db)):
+async def forgot_password(request: schemas.ForgotPasswordRequest, db: Session = Depends(get_db)):
     user = db.query(models.User).filter(models.User.email == request.email).first()
     if not user:
         raise HTTPException(status_code=404, detail="Cette adresse e-mail n'est pas enregistrée.")
     
-    # Simulation d'un token et génération du lien pour le terminal
+    # Génération du token et du lien
     simulated_token = "reset_" + auth.get_password_hash(user.email)[:10]
     reset_link = f"http://localhost:5173/?reset_token={simulated_token}&email={user.email}"
     
-    print("\n" + "="*50)
-    print("📧 SIMULATION D'ENVOI D'EMAIL JURIVA")
-    print(f"Pour réinitialiser le mot de passe de : {user.email}")
-    print(f"CLIQUEZ SUR CE LIEN : {reset_link}")
-    print("="*50 + "\n")
-    
-    return {"message": "Utilisateur vérifié. Un lien a été envoyé."}
+    try:
+        await send_reset_password_email(user.email, reset_link)
+        return {"message": "Un lien de réinitialisation a été envoyé à votre adresse e-mail."}
+    except Exception as e:
+        print(f"Erreur lors de l'envoi de l'email : {e}")
+        # En cas d'erreur d'envoi, on garde quand même le lien dans la console pour le développement
+        print(f"Lien de secours (console) : {reset_link}")
+        return {"message": "Erreur lors de l'envoi de l'email, mais vous pouvez trouver le lien dans la console du serveur."}
 
 @router.post("/reset-password")
 def reset_password(reset_data: schemas.PasswordReset, db: Session = Depends(get_db)):

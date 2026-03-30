@@ -181,10 +181,17 @@ const Home = ({ user = {}, onLogout, onOpenAuth }) => {
 
   useEffect(() => {
     const fetchChats = async () => {
-      if (!user?.isGuest && user?.token) {
+      // Si c'est un invité, on vide les chats et on arrête
+      if (!user || user.isGuest) {
+        setChats([]);
+        setActiveChatId(null);
+        return;
+      }
+
+      if (user.token) {
         try {
           const response = await fetch(`${API_URL}/chat/conversations`, {
-            headers: { 'Authorization': `Bearer ${user?.token}` }
+            headers: { 'Authorization': `Bearer ${user.token}` }
           });
           if (response.ok) {
             const data = await response.json();
@@ -193,14 +200,10 @@ const Home = ({ user = {}, onLogout, onOpenAuth }) => {
             if (formatted.length > 0) setActiveChatId(formatted[0].id);
             return;
           }
-        } catch (err) { console.error(err); }
-      }
-      
-      const saved = localStorage.getItem(`juriva_chats_${user?.email || 'guest'}`);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        setChats(parsed);
-        if (parsed.length > 0) setActiveChatId(parsed[0].id);
+        } catch (err) { 
+          console.error("Erreur lors de la récupération des discussions:", err);
+          setChats([]);
+        }
       }
     };
     fetchChats();
