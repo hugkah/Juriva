@@ -225,6 +225,11 @@ async def ask_question(
     # Sauvegarde du message utilisateur
     history_for_ia = list(conv.messages)
     
+    # Si c'est le premier message, on met à jour le titre de la conversation
+    if not history_for_ia:
+        # Prendre les 50 premiers caractères du message pour le titre
+        conv.title = (question[:50] + '...') if len(question) > 50 else question
+    
     user_msg = models.Message(
         conversation_id=conv.id,
         role=models.RoleEnum.user,

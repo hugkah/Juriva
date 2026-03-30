@@ -20,6 +20,12 @@ const Auth = ({ onLogin, onCancel, initialView = 'login' }) => {
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
 
+  const changeView = (newView) => {
+    setError('');
+    setMessage('');
+    setView(newView);
+  };
+
   const countryFlags = { 
     // ... (reste des drapeaux)
     "Bénin": "🇧🇯", "Burkina Faso": "🇧🇫", "Cameroun": "🇨🇲", "Côte d'Ivoire": "🇨🇮", 
@@ -192,7 +198,7 @@ const Auth = ({ onLogin, onCancel, initialView = 'login' }) => {
 
           {view === 'login' && (
             <div style={{ textAlign: 'right' }}>
-              <span onClick={() => setView('forgot')} style={{ fontSize: '0.85rem', color: 'var(--accent)', cursor: 'pointer', fontWeight: '700' }}>Mot de passe oublié ?</span>
+              <span onClick={() => changeView('forgot')} style={{ fontSize: '0.85rem', color: 'var(--accent)', cursor: 'pointer', fontWeight: '700' }}>Mot de passe oublié ?</span>
             </div>
           )}
 
@@ -207,13 +213,13 @@ const Auth = ({ onLogin, onCancel, initialView = 'login' }) => {
 
         <div style={{ marginTop: '32px', paddingTop: '24px', borderTop: '1px solid var(--border)' }}>
           {view === 'forgot' || view === 'reset' ? (
-            <p onClick={() => setView('login')} style={{ color: 'var(--accent)', cursor: 'pointer', fontWeight: '700', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+            <p onClick={() => changeView('login')} style={{ color: 'var(--accent)', cursor: 'pointer', fontWeight: '700', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
               <ChevronLeft size={18} /> Retour à la connexion
             </p>
           ) : (
             <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', fontWeight: '600' }}>
               {view === 'login' ? "Nouveau sur JURIVA ?" : "Déjà un compte ?"}
-              <span onClick={() => setView(view === 'login' ? 'register' : 'login')} style={{ color: 'var(--accent)', cursor: 'pointer', marginLeft: '8px', fontWeight: '800', textDecoration: 'underline' }}>
+              <span onClick={() => changeView(view === 'login' ? 'register' : 'login')} style={{ color: 'var(--accent)', cursor: 'pointer', marginLeft: '8px', fontWeight: '800', textDecoration: 'underline' }}>
                 {view === 'login' ? "S'inscrire" : "Se connecter"}
               </span>
             </p>

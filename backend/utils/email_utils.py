@@ -5,19 +5,27 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-conf = ConnectionConfig(
-    MAIL_USERNAME=os.getenv("MAIL_USERNAME"),
-    MAIL_PASSWORD=os.getenv("MAIL_PASSWORD"),
-    MAIL_FROM=os.getenv("MAIL_FROM"),
-    MAIL_PORT=int(os.getenv("MAIL_PORT", 587)),
-    MAIL_SERVER=os.getenv("MAIL_SERVER"),
-    MAIL_STARTTLS=True,
-    MAIL_SSL_TLS=False,
-    USE_CREDENTIALS=True,
-    VALIDATE_CERTS=True
-)
+def get_mail_config():
+    """Récupère la configuration mail de manière sécurisée."""
+    return ConnectionConfig(
+        MAIL_USERNAME=os.getenv("MAIL_USERNAME", ""),
+        MAIL_PASSWORD=os.getenv("MAIL_PASSWORD", ""),
+        MAIL_FROM=os.getenv("MAIL_FROM", "noreply@juriva.com"),
+        MAIL_PORT=int(os.getenv("MAIL_PORT", 587)),
+        MAIL_SERVER=os.getenv("MAIL_SERVER", "smtp.gmail.com"),
+        MAIL_STARTTLS=True,
+        MAIL_SSL_TLS=False,
+        USE_CREDENTIALS=True,
+        VALIDATE_CERTS=True
+    )
 
 async def send_reset_password_email(email: EmailStr, reset_link: str):
+    # On vérifie si la config est présente avant d'envoyer
+    if not os.getenv("MAIL_USERNAME") or not os.getenv("MAIL_PASSWORD"):
+        print("⚠️ CONFIGURATION EMAIL MANQUANTE : Le lien n'a pas pu être envoyé par mail.")
+        print(f"Lien de secours : {reset_link}")
+        raise Exception("Configuration email manquante sur le serveur.")
+
     html = f"""
     <html>
     <body>
@@ -45,5 +53,6 @@ async def send_reset_password_email(email: EmailStr, reset_link: str):
         subtype=MessageType.html
     )
 
+    conf = get_mail_config()
     fm = FastMail(conf)
     await fm.send_message(message)
