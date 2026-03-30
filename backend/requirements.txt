@@ -1,3 +1,12 @@
 fastapi
 uvicorn
-python-multipart  # si tu upload des fichiers
+python-multipart
+sqlalchemy
+groq
+python-dotenv
+pymupdf
+python-docx
+reportlab
+passlib[bcrypt]
+python-jose[cryptography]
+pydantic[email]
