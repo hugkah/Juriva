@@ -14,12 +14,10 @@ app = FastAPI(
 )
 
 # CORS Configuration
-origins = ["*"]  # Autorise toutes les origines pour le déploiement sur Vercel
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_credentials=False, # Changé à False pour fonctionner avec allow_origins=["*"]
     allow_methods=["*"],
     allow_headers=["*"],
 )
